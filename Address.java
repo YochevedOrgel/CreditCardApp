@@ -3,7 +3,6 @@ package CreditCardApp;
 public class Address {
 	private String street;
 	private String city;
-	// private USState uSState;
 	private String zipCode;
 	
 	public Address(String street, String city, String zipCode) {

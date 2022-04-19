@@ -4,11 +4,11 @@ import java.time.LocalDate;
 
 public class Transaction {
 	private long transactionID; 
-	private long lastTransactionID;//starts only from 1, 0 is like null over here
+	private long lastTransactionID;//starts only from 1
 	private LocalDate transactionDate;
 	private TransactionType transactionType;
 	private double transactionAmount;
-	private static int counter = 0;//global cntr - not sure if its correct
+	static int counter = 1;
 	
 	public Transaction(LocalDate tDate, TransactionType tType, double transactionAmount){
 		lastTransactionID = counter;
@@ -37,5 +37,12 @@ public class Transaction {
 		return transactionType;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+			str.append("\nTransaction Type: " + transactionType
+					+ "\nTransaction amount: " + transactionAmount);
+		return str.toString();
+	}
 
 }

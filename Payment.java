@@ -29,6 +29,14 @@ public class Payment extends Transaction{
 		this.account = account;
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		str.append(super.toString());
+		str.append("\nPayment Type: " + this.paymentType + "\nBank Account: " + this.account);
+		return str.toString();
+	}
+	
 	
 
 }

@@ -1,15 +1,24 @@
 package CreditCardApp;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class CreditCards {
 	private ArrayList<CreditCard> cards;
 
+	public CreditCards() {
+		cards = new ArrayList<>();
+	}
+	
+	public boolean isEmpty() {
+		return cards.size() == 0;
+	}
+
 	public ArrayList <CreditCard> activeCards() {
 		ArrayList<CreditCard> active = new ArrayList<>();
 		for (int i = 0; i < cards.size(); i++) {
-			if (cards.get(i).getStatus() == CreditCardStatus.ACTIVE) {// null safe
+			if (cards.get(i).getStatus() == CreditCardStatus.ACTIVE) {
 				active.add(cards.get(i));
 			}
 		}
@@ -17,9 +26,9 @@ public class CreditCards {
 
 	}
 
-	public double totalBalance() {
-		double balance = cards.get(0).getCurrentBalance();
-		for (int i = 1; i < cards.size(); i++) {
+	public double totalBalance() {	
+		double balance = 0;
+		for (int i = 0; i < cards.size(); i++) {
 			balance += cards.get(i).getCurrentBalance();
 			
 		}
@@ -28,8 +37,8 @@ public class CreditCards {
 	}
 
 	public double totalAvailCredit() {
-		double availCredit = cards.get(0).getAvailCredit();
-		for (int i = 1; i < cards.size(); i++) {
+		double availCredit = 0;
+		for (int i = 0; i < cards.size(); i++) {
 			availCredit += cards.get(i).getAvailCredit();
 		}
 		return availCredit;
@@ -37,24 +46,32 @@ public class CreditCards {
 
 	}
 
-	public void addCard(LocalDate issueDate, CreditCardType creditCardType, CreditCardStatus status
-			, double creditCardLimit) {
-		CreditCard newCard = new CreditCard(issueDate, creditCardType, status, creditCardLimit);
+	public void addCard(CreditCard newCard) {
 		cards.add(newCard);
 		
 	}
 
-	public void removeCard(int id) {
+	public boolean removeCard(int id) {
 
 		for (int i = 0; i < cards.size(); i++) {
 			if (cards.get(i).getID() == id) {
 				cards.remove(i);
-				return;
+				return true;
 			}
 		}
+		return false;
 	}
 
-	public CreditCard findCard(int id) {//?? RETURNS THE CARD - SWTICHED IT FROM VOID
+	public boolean findCard(int id) {
+		for (int i = 0; i < cards.size(); i++) {
+			if (cards.get(i).getID() == id) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public CreditCard getCard(int id) {
 		for (int i = 0; i < cards.size(); i++) {
 			if (cards.get(i).getID() == id) {
 				return cards.get(i);
@@ -72,22 +89,56 @@ public class CreditCards {
 
 	}
 
-	public void addFee(int id, double f) {
+	public void addFee(int id, Fee f) {
 		for (int i = 0; i < cards.size(); i++) {
 			if (cards.get(i).getID() == id) {
-				cards.get(i).addFee(f);;
+				cards.get(i).addFee(f);
 			}
 		}
 
 	}
 
-	public void addPayment(int id, double pay) {
+	public void addPayment(int id, Payment pay) {
 		for (int i = 0; i < cards.size(); i++) {
 			if (cards.get(i).getID() == id) {
 				cards.get(i).addPayment(pay);
 			}
 		}
-
 	}
+	
+	public LocalDate mostRecentPayment() {
+		String str = "01/01/0001";
+		DateTimeFormatter dt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		LocalDate date = LocalDate.parse(str, dt);
+		LocalDate recent = date;
+		for (int i = 0; i < cards.size(); i++) {
+			if (cards.get(i).mostRecentPayment().isAfter(recent)) {
+				recent = cards.get(i).mostRecentPayment();
+			}
+	}
+		return recent;
+	}
+	
+	public double getLargestPurchase() {
+		double largestPurchase = 0;
+		for (int i = 0; i < cards.size(); i++) {
+			if(cards.get(i).getLargestPurchase() != null) {
+			if(cards.get(i).getLargestPurchase().getTransactionAmount() > largestPurchase) {
+				largestPurchase = cards.get(i).getLargestPurchase().getTransactionAmount();
+			}
+			}
+		}
+		return largestPurchase;
+	}
+	
+	public double getTotalAmountSpentOnCatagory(PurchaseType type) {
+		double amount = 0;
+		for (int i = 0; i < cards.size(); i++) {
+			amount += cards.get(i).getTotalAmountSpentOnCatagory(type);
+
+		}
+		return amount;
+	}
+
 
 }

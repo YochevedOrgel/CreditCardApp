@@ -1,13 +1,13 @@
 package CreditCardApp;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-//NEED TO RETURN DEEP COPIES
 public class CreditCard {
-	private static int creditCardID = 0;//static global counter to generate it
+	static int creditCardIDs = 1;//static global counter to generate it
+	private int thisCreditCardID;
 	private LocalDate issueDate;
-	//private issueCompany;//need the dataType
 	private CreditCardType creditCardType;
 	private CreditCardStatus status;
 	private double creditCardLimit;
@@ -17,7 +17,7 @@ public class CreditCard {
 	
 	public CreditCard(LocalDate issueDate, CreditCardType creditCardType, CreditCardStatus status
 			, double creditCardLimit) {//constructor
-		creditCardID = creditCardID++;
+		thisCreditCardID = creditCardIDs++;
 		this.issueDate = issueDate;
 		this.creditCardType = creditCardType;
 		this.status = status;
@@ -28,22 +28,43 @@ public class CreditCard {
 			
 	}
 	
+	public LocalDate mostRecentPayment() {
+		String str = "01/01/0001"; //earliest date possible
+		DateTimeFormatter dt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		LocalDate date = LocalDate.parse(str, dt);
+		LocalDate recent = date;
+		for(int i = 0; i < transactions.size(); i++) {
+			if(transactions.get(i) instanceof Payment && transactions.get(i).getTransactionDate().compareTo(recent) > 0) {
+				recent = transactions.get(i).getTransactionDate();
+			}
+		}
+		
+		return recent;
+	}
+	
+	public double getCreditCardLimit() {
+		return creditCardLimit;
+	}
+
 	public void addPurchase(Purchase p) {
 		transactions.add(p);
 		availCredit -= p.getTransactionAmount();
 		currentBalance += p.getTransactionAmount();
 		
 	}
-	public void addPayment(double pay) {
-		currentBalance -= pay;
-		availCredit += pay;
+	public void addPayment(Payment pay) {
+		transactions.add(pay);
+		currentBalance -= pay.getTransactionAmount();
+		availCredit += pay.getTransactionAmount();
 		
 	}
-	public void addFee(double f) {
-		currentBalance += f ;
-		availCredit -=f;
+	public void addFee(Fee f) {
+		transactions.add(f);
+		currentBalance += f.getTransactionAmount() ;
+		availCredit -=f.getTransactionAmount();
 		
 	}
+	
 	public double getCurrentBalance() {
 		return this.currentBalance;
 		
@@ -79,14 +100,18 @@ public class CreditCard {
 		}
 		return total;
 	}
+	
 	public Purchase getMostRecentPurchase() {
 		
-		LocalDate mostRecent = null; //might not compare itself to null, we might need to set this
+		String str = "01/01/0001";
+		DateTimeFormatter dt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		LocalDate date = LocalDate.parse(str, dt); 
+		LocalDate mostRecent = date;
 		int mostRecentIndex = -1;
 		
 		//looping through the transactions to find the most recent
 		for (int i = 0; i < transactions.size(); i++) {
-			if(transactions.get(i) instanceof Purchase && mostRecent.isAfter(transactions.get(i).getTransactionDate())) {
+			if(transactions.get(i) instanceof Purchase && mostRecent.compareTo(transactions.get(i).getTransactionDate()) < 0) {
 				mostRecent = transactions.get(i).getTransactionDate();
 				mostRecentIndex = i;
 			}
@@ -101,12 +126,16 @@ public class CreditCard {
 	}
 	public Payment getMostRecentPayment() {
 		
-		LocalDate mostRecent = null; //might not compare itself to null, we might need to set this
+		String str = "01/01/0001";
+		DateTimeFormatter dt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		LocalDate date = LocalDate.parse(str, dt); 
+		LocalDate mostRecent = date;
 		int mostRecentIndex = -1;
+		
 		
 		//looping through the payments to find the most recent
 		for (int i = 0; i < transactions.size(); i++) {
-			if(transactions.get(i) instanceof Payment && mostRecent.isAfter(transactions.get(i).getTransactionDate())) {
+			if(transactions.get(i) instanceof Payment && mostRecent.compareTo(transactions.get(i).getTransactionDate())<0) {
 				mostRecent = transactions.get(i).getTransactionDate();
 				mostRecentIndex = i;
 			}
@@ -123,6 +152,34 @@ public class CreditCard {
 		return this.status;
 	}
 	public int getID() {
-		return CreditCard.creditCardID;
+		return this.thisCreditCardID;
+	}
+	
+	public double getTotalAmountSpentOnCatagory(PurchaseType type) {
+		double amount = 0.0;
+		for (int i = 0; i < transactions.size(); i++) {
+			if(transactions.get(i) instanceof Purchase) {
+				Purchase p = (Purchase) transactions.get(i); //typecasting
+				if(p.getPurchaseType().equals(type)) {
+					amount += p.getTransactionAmount();
+				}
+			}
+		}//end of for loop
+		
+		return amount;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		str.append("Crdeit Card ID: " + this.thisCreditCardID
+				+ "\nType of Card: " + this.creditCardType
+				+ "\nDate issued: " + this.issueDate
+				+ "\nCredit card Status: " + this.status
+				+ "\nCredit Card Limit: $" +  this.creditCardLimit
+				+ "\nCurrent Balance: $" + this.currentBalance
+				+ "\nCredit Available: $" + this.availCredit + "\n");//didn't add transactions
+		
+		return str.toString();
 	}
 }

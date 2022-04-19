@@ -17,6 +17,14 @@ public class BankAccount {
 	public String getAccountID() {
 		return accountID;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+			str.append("\nBank Name: " + this.bankName
+					+ "\nAccount ID: " + accountID);
+		return str.toString();
+	}
 
 
 }
